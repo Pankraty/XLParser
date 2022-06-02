@@ -943,5 +943,19 @@ namespace XLParser.Tests
             Test("=A1:A5,C1:C5,E1:E5");
             Test("=Sheet1!$A$1,Sheet1!$B$2");
         }
+
+        [TestMethod]
+        public void SmbPaths()
+        {
+            // See [#136](https://github.com/spreadsheetlab/XLParser/issues/136)
+            Test("='\\\\TEST-01\\Folder\\[Book1.xlsx]Sheet1'!$A$1", tree =>
+                tree.AllNodes().Count(x => x.Is(GrammarNames.Reference)) == 1);
+            Test("='C:\\TEST-01\\Folder\\[Book1.xlsx]Sheet1'!$A$1+'C:\\TEST-01\\Folder\\[Book1.xlsx]Sheet1'!$A$2", tree =>
+                tree.AllNodes().Count(x => x.Is(GrammarNames.Reference)) == 2);
+            Test("='\\\\TEST-01\\Folder\\[Book1.xlsx]Sheet1'!$A$1+'\\\\TEST-01\\Folder\\[Book1.xlsx]Sheet1'!$A$2", tree =>
+                tree.AllNodes().Count(x => x.Is(GrammarNames.Reference)) == 2);
+            Test("='\\\\TEST-01\\Folder\\[Book1.xlsx]Sheet1'!$A$1+'\\\\TEST-01\\[Folder]\\[Book1.xlsx]Sheet1'!$A$2", tree =>
+                tree.AllNodes().Count(x => x.Is(GrammarNames.Reference)) == 2);
+        }
     }
 }
